@@ -4,8 +4,10 @@ import br.com.alura.screenmatch.model.DadosSerie;
 import br.com.alura.screenmatch.model.DadosTemporada;
 import br.com.alura.screenmatch.model.Episodio;
 import br.com.alura.screenmatch.model.Serie;
+import br.com.alura.screenmatch.repository.SerieRepository;
 import br.com.alura.screenmatch.service.ConsumoApi;
 import br.com.alura.screenmatch.service.ConverteDados;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,6 +22,16 @@ public class Principal {
 
     //criar uma nova lista para salvar a busca da API
     private List<DadosSerie> dadosSeries = new ArrayList<>();
+
+    //instanciar a interface repositório para uso das operações CRUD
+    //chamado injeção de dependência
+
+
+    private SerieRepository repository;
+
+    public Principal(SerieRepository repository) {
+        this.repository = repository;
+    }
 
     public void exibeMenu() {
         var opcao = -1;
@@ -60,7 +72,12 @@ public class Principal {
         DadosSerie dados = getDadosSerie();
 
         //salvar na lista os dados retornados da API
-        dadosSeries.add(dados);
+        //dadosSeries.add(dados);
+
+        //informar quais informações serão utilizados para salvar
+        Serie serie = new Serie(dados);
+        repository.save(serie);
+
         System.out.println(dados);
     }
 
@@ -87,14 +104,17 @@ public class Principal {
     private void listarSeriesBuscadas(){
 
         //criar uma lista de séries List<> importando a série
-        List<Serie> series = new ArrayList<>();
+        //List<Serie> series = new ArrayList<>();
 
         //atribuir os dados de dadosSeries
-        series = dadosSeries.stream()
-                //para cada dadosSeries cria uma nova serie ->
-                .map(d -> new Serie(d))
-                //coletar para a lista e atribuir para uma
-                .collect(Collectors.toList());
+//        series = dadosSeries.stream()
+//                //para cada dadosSeries cria uma nova serie ->
+//                .map(d -> new Serie(d))
+//                //coletar para a lista e atribuir para uma
+//                .collect(Collectors.toList());
+
+        //consultar dados no banco
+        List<Serie> series = repository.findAll();
         series.stream()
                 .sorted(Comparator.comparing(Serie::getGenero))
                 .forEach(System.out::println);

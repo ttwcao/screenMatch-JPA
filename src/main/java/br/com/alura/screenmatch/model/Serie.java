@@ -1,18 +1,57 @@
 package br.com.alura.screenmatch.model;
 
+import br.com.alura.screenmatch.service.ConsultaChatGPT;
 import com.fasterxml.jackson.annotation.JsonAlias;
+import jakarta.persistence.*;
+import org.springframework.boot.autoconfigure.web.WebProperties;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
+//aqui é indicado para o JPA que esta classe será uma tabela
+@Entity
+//aqui é definido como será o nome da tabela, diferente da classe, é possível
+//também personalizar o nome da coluna @Column(name"nomeDaColuna")
+
+@Table(name = "series")
 public class Serie {
+    //definição da chave primária na tabela
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    private Long id;
+    @Column(unique = true)
     private String titulo;
     private Integer totalTemporadas;
     private Double avaliacao;
+    @Enumerated(EnumType.STRING)
     private Categoria genero;
     private String atores;
     private String poster;
     private String sinopse;
+
+    @Transient //informa para o JPA que esta lista não vai para o banco
+    private List<Episodio> episodios = new ArrayList<>();
+
+    //Construtor padrão para o JPA fazer consultas no banco
+    public Serie(){}
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public List<Episodio> getEpisodios() {
+        return episodios;
+    }
+
+    public void setEpisodios(List<Episodio> episodios) {
+        this.episodios = episodios;
+    }
 
     public Serie(DadosSerie dadosSerie){
         this.titulo = dadosSerie.titulo();
@@ -23,6 +62,7 @@ public class Serie {
         this.genero = Categoria.fromString(dadosSerie.genero().split(",")[0].trim());
         this.atores = dadosSerie.atores();
         this.poster = dadosSerie.poster();
+        //this.sinopse = ConsultaChatGPT.obterTraducao(dadosSerie.sinopse()).trim();
         this.sinopse = dadosSerie.sinopse();
     }
 
