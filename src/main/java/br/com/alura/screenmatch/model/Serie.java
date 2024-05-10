@@ -31,7 +31,10 @@ public class Serie {
     private String poster;
     private String sinopse;
 
-    @Transient //informa para o JPA que esta lista não vai para o banco
+    //@Transient informa para o JPA que esta lista não vai para o banco
+    //mapeamento com o nome do atributo mapeado em episodios
+    // cascade para gravar a consulta no banco com relacionamento entre tabelas
+    @OneToMany(mappedBy = "serie", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Episodio> episodios = new ArrayList<>();
 
     //Construtor padrão para o JPA fazer consultas no banco
@@ -50,6 +53,8 @@ public class Serie {
     }
 
     public void setEpisodios(List<Episodio> episodios) {
+        //associação do episodio com a chave estrangeira
+        episodios.forEach(e -> e.setSerie(this));
         this.episodios = episodios;
     }
 
@@ -131,6 +136,7 @@ public class Serie {
                 ", Atores = " + atores + '\'' +
                 ", Poster ='" + poster + '\'' +
                 ", Sinopse ='" + sinopse + '\'' +
+                ", Episódios ='" + episodios + '\'' +
                 '}';
     }
 }
